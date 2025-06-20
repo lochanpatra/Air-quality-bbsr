@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bhubaneswar Air Quality Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <style> #map { height: 600px; } </style>
+</head>
+<body>
+  <h2>Real-time Air Quality in Bhubaneswar</h2>
+  <div id="map"></div>
+
+  <script>
+    var map = L.map('map').setView([20.2961, 85.8245], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+    }).addTo(map);
+
+    async function fetchAQ() {
+      const response = await fetch('http://localhost:8000/api/aq/latest');
+      const data = await response.json();
+
+      data.forEach(station => {
+        let color = 'green';
+        if (station.pm25 > 100) color = 'red';
+        else if (station.pm25 > 50) color = 'orange';
+
+        L.circleMarker([station.lat, station.lon], {
+          radius: 8,
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.6
+        }).addTo(map)
+        .bindPopup(`Station: ${station.station_id}<br>PM2.5: ${station.pm25}<br>Time: ${station.timestamp}`);
+      });
+    }
+
+    fetchAQ();
+    setInterval(fetchAQ, 60000); // refresh every 60s
+  </script>
+</body>
+</html>

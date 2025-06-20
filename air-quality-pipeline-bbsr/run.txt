@@ -1,0 +1,16 @@
+Start containers:
+
+docker-compose up -d
+Run DB init:
+
+
+docker exec -it <postgres_container_id> psql -U aq_user -d aqdb -f /path/to/storage/init.sql
+Run Kafka producer:
+
+
+python ingest/producer.py
+Run API:
+
+
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+Open dashboard/leaflet-map.html in your browser for real-time map
